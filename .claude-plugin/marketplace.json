@@ -1,0 +1,23 @@
+{
+  "name": "orchestration-skills",
+  "owner": {
+    "name": "jasperdj",
+    "email": "jasper@example.com"
+  },
+  "metadata": {
+    "description": "Multi-agent orchestration skills for managing parallel feature development with Claude Code",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "orchestrator-suite",
+      "source": "./plugins/orchestrator-suite",
+      "description": "Orchestrator and worker skills for multi-agent project management",
+      "version": "1.0.0",
+      "author": {
+        "name": "jasperdj"
+      }
+    }
+  ]
+}

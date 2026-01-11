@@ -1,0 +1,9 @@
+{
+  "name": "orchestrator-suite",
+  "description": "Multi-agent orchestration system with orchestrator and worker skills for parallel feature development",
+  "version": "1.0.0",
+  "skills": [
+    "skills/orchestrator",
+    "skills/worker"
+  ]
+}
