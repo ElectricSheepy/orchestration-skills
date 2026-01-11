@@ -28,9 +28,28 @@ End-to-end testing framework for the orchestrator system. Creates dummy projects
 
 # Targeted test for blocker handling
 /orchestration-tester --projects 1 --features 5 --goal "blocker handling"
+```
 
-# Stress test with more complexity
-/orchestration-tester --projects 5 --features 4 --complexity medium --duration 60
+### `/orchestrator-dashboard`
+Setup and launch the real-time orchestrator dashboard. Handles npm install, checks port availability, and starts the monitoring web UI.
+
+```bash
+# Start dashboard (installs deps if needed)
+/orchestrator-dashboard
+
+# Other commands
+/orchestrator-dashboard stop      # Stop the dashboard
+/orchestrator-dashboard status    # Check if running
+/orchestrator-dashboard open      # Open in browser
+```
+
+**Recommended workflow:**
+```bash
+# Terminal 1: Start dashboard first
+/orchestrator-dashboard
+
+# Terminal 2: Start orchestrator
+/orchestrator
 ```
 
 ## Scripts
@@ -85,3 +104,12 @@ git clone https://github.com/jasperdj/orchestration-skills.git
 # Install in Claude Code (from the skills directory)
 /install ./orchestration-skills
 ```
+
+## Updating
+
+```bash
+cd orchestration-skills
+git pull
+```
+
+Changes take effect in your next Claude Code session.
