@@ -1,9 +1,15 @@
 {
   "name": "orchestrator-suite",
   "description": "Multi-agent orchestration system with orchestrator and worker skills for parallel feature development",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "skills": [
     "skills/orchestrator",
-    "skills/worker"
+    "skills/worker",
+    "skills/project-init",
+    "skills/status",
+    "skills/retrospective"
+  ],
+  "scripts": [
+    "scripts/validate-setup.sh"
   ]
 }
