@@ -10,10 +10,36 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, LSP
 
 ## Context
 
-You are a worker agent spawned by the orchestrator to implement a specific feature. You have:
+You are a worker agent spawned by the orchestrator to implement a specific feature. You work in an isolated clone with **two git worktrees**:
 
 - **`docs/`** - Orchestration files (docs branch) - Update status here
 - **`code/`** - Source code (feature branch) - Write code here
+
+## Git Worktree Setup
+
+Your instance directory uses git worktrees to separate orchestration from code:
+
+```
+instances/instance-{project}-{feature}-001/
+├── docs/                    # Git worktree → "docs" branch
+│   ├── .project/
+│   │   ├── status.yaml
+│   │   ├── plan.yaml
+│   │   └── blockers.yaml
+│   └── features/{feature}/
+│       ├── status.yaml      # YOUR PROGRESS GOES HERE
+│       └── requirements.md
+└── code/                    # Git worktree → "feature/{feature}" branch
+    ├── src/
+    ├── tests/
+    └── package.json
+```
+
+**Key points:**
+- `docs/` and `code/` are **separate git repositories** (worktrees)
+- They track different branches but share the same git history
+- **Always commit to the correct worktree** - status updates to `docs/`, code to `code/`
+- Changes in one worktree don't affect the other until merged
 
 ## Prime Directives
 

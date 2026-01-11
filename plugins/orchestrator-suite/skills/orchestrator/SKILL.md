@@ -34,6 +34,8 @@ The orchestrator will:
 
 ## File Structure
 
+Projects use **git worktrees** to separate orchestration files from source code:
+
 ```
 {workspace}/
 ├── orchestrator/                    # Orchestrator runtime files
@@ -46,19 +48,25 @@ The orchestrator will:
 │       └── file-schemas.yaml
 ├── projects/                        # Project directories
 │   └── {project}/
-│       ├── docs/                    # Orchestration files (docs branch)
+│       ├── docs/                    # Git worktree → "docs" branch
 │       │   ├── .project/
 │       │   │   ├── status.yaml
 │       │   │   ├── plan.yaml
 │       │   │   └── blockers.yaml
 │       │   └── features/{name}/
 │       │       └── status.yaml
-│       └── code/                    # Source code (main/feature branch)
+│       └── code/                    # Git worktree → "main" branch
 └── instances/                       # Agent isolated clones
     └── {instance-id}/
-        ├── docs/
-        └── code/
+        ├── docs/                    # Git worktree → "docs" branch
+        └── code/                    # Git worktree → "feature/{name}" branch
 ```
+
+**Why worktrees?**
+- Orchestration files (status, blockers) stay on `docs` branch
+- Source code stays on `main` or feature branches
+- Workers can commit status updates without affecting code branches
+- Clean separation of concerns
 
 ## Monitoring Cycle
 
