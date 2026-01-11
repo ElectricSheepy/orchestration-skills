@@ -35,8 +35,29 @@ Scopes:
 | `status.yaml` | Timeline, progress patterns |
 | `blockers.yaml` | Resolved blockers, resolution time |
 | `events.jsonl` | Activity timeline, spawn/complete events |
-| `instances/*.yaml` | Messages, todos, assumptions |
+| `instances/*.yaml` | Messages, todos, assumptions, session info |
+| **Instance logs** | Tool calls, errors, reasoning, actual work done |
 | Git history | Commit patterns, code changes |
+
+### Instance Log Analysis
+
+The instance YAML files contain a `claude_session` field pointing to the actual agent logs:
+
+```yaml
+# orchestrator/instances/{id}.yaml
+claude_session:
+  session_id: "a15b646-demo-session"
+  agent_id: "a15b646"
+  log_file: "agent-a15b646.jsonl"    # <-- The actual logs
+  slug: "mellow-dazzling-manatee"
+```
+
+These JSONL log files contain the complete conversation history:
+- **Tool calls**: What tools were used and how often
+- **Errors**: Failed operations, retries, error messages
+- **Reasoning**: Agent's thought process and decisions
+- **Time spent**: Duration between messages/actions
+- **Files touched**: Which files were read/edited
 
 ## Retrospective Template
 
@@ -90,12 +111,21 @@ Scopes:
 
 ## Metrics
 
+### Code Metrics
 - **Commits:** {commit_count}
 - **Files changed:** {files_changed}
 - **Lines added/removed:** +{added}/-{removed}
 - **Test coverage:** {coverage}%
 - **Blockers encountered:** {blocker_count}
 - **Blocker resolution rate:** {resolution_rate}%
+
+### Agent Behavior (from logs)
+- **Total tool calls:** {tool_call_count}
+- **Tool breakdown:** Read: {read_count}, Edit: {edit_count}, Bash: {bash_count}
+- **Errors encountered:** {error_count}
+- **Files touched:** {files_touched}
+- **Read/Write ratio:** {read_write_ratio}
+- **Repeated operations:** {repeated_ops} (potential inefficiency)
 ```
 
 ## Analysis Categories
@@ -124,6 +154,15 @@ Scopes:
 - Test coverage changes
 - Technical debt introduced/resolved
 
+### Agent Behavior (from instance logs)
+
+- **Tool usage patterns**: Which tools were used most? Any unusual patterns?
+- **Error frequency**: How many tool calls failed? What types of errors?
+- **Retries and recovery**: Did the agent recover gracefully from errors?
+- **Exploration vs execution**: How much time spent reading vs writing?
+- **Context efficiency**: Did the agent re-read files unnecessarily?
+- **Decision quality**: Were tool choices appropriate for the task?
+
 ## Workflow
 
 ### Step 1: Gather Data
@@ -139,7 +178,35 @@ yq '.resolved[]' "projects/$project/docs/.project/blockers.yaml"
 grep "\"feature\":\"$feature\"" orchestrator/events.jsonl
 ```
 
-### Step 2: Analyze Patterns
+### Step 2: Analyze Instance Logs
+
+```bash
+# Get the log file path from instance YAML
+instance_id="instance-$project-$feature-001"
+log_file=$(yq '.claude_session.log_file' "orchestrator/instances/$instance_id.yaml")
+
+# Count tool usage by type
+grep '"tool_use"' "$log_file" | jq -r '.name' | sort | uniq -c | sort -rn
+
+# Find errors and failures
+grep -E '"error"|"failed"|"Error"' "$log_file"
+
+# Extract files that were read/edited
+grep '"tool_use"' "$log_file" | grep -E '"Read"|"Edit"|"Write"' | \
+  jq -r '.input.file_path' | sort | uniq -c
+
+# Identify repeated operations (potential inefficiency)
+grep '"tool_use"' "$log_file" | \
+  jq -r '[.name, .input.file_path // .input.command // ""] | join(":")' | \
+  sort | uniq -c | sort -rn | head -20
+
+# Calculate exploration vs execution ratio
+reads=$(grep -c '"Read"' "$log_file" || echo 0)
+writes=$(grep -c '"Write"\|"Edit"' "$log_file" || echo 0)
+echo "Read/Write ratio: $reads:$writes"
+```
+
+### Step 3: Analyze Patterns
 
 ```bash
 # Calculate blocker duration
@@ -150,14 +217,14 @@ cd "projects/$project/code"
 git log --oneline --since="$start_date" --until="$end_date"
 ```
 
-### Step 3: Generate Report
+### Step 4: Generate Report
 
 Write retrospective to:
 - `projects/$project/docs/features/$feature/retrospective.md` (feature)
 - `projects/$project/docs/.project/retrospective.md` (project)
 - `orchestrator/retrospectives/{date}-program.md` (program)
 
-### Step 4: Log Event
+### Step 5: Log Event
 
 ```bash
 echo '{"type":"retrospective","scope":"feature","project":"alpha","feature":"auth","timestamp":"..."}' >> orchestrator/events.jsonl
@@ -210,11 +277,30 @@ due to unclear requirements.
 **Average blocker resolution time:** 4h
 **Most common blocker type:** decision
 
+## Agent Behavior Analysis
+
+**Log file:** agent-a15b646.jsonl
+
+| Metric | Value |
+|--------|-------|
+| Total tool calls | 147 |
+| Read operations | 52 |
+| Edit operations | 31 |
+| Bash commands | 64 |
+| Errors encountered | 3 |
+| Read/Write ratio | 1.7:1 |
+
+**Notable patterns:**
+- Re-read `auth.ts` 4 times (could benefit from better context retention)
+- 2 failed test runs before success (normal iteration)
+- Efficient use of Grep for code search
+
 ## Recommendations
 
 1. **Requirements:** Add OAuth checklist to feature templates
 2. **Defaults:** Document standard defaults for common decisions
 3. **Communication:** Earlier escalation of blocking questions
+4. **Agent efficiency:** Consider providing more upfront context to reduce re-reads
 ```
 
 ## Triggering Retrospectives
