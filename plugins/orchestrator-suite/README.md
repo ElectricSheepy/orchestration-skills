@@ -99,7 +99,7 @@ Workers update their progress via YAML files which the orchestrator monitors.
 
 ```bash
 # Clone the marketplace
-git clone https://github.com/jasperdj/orchestration-skills.git
+git clone https://github.com/ElectricSheepy/orchestration-skills.git
 
 # Install in Claude Code (from the skills directory)
 /install ./orchestration-skills
