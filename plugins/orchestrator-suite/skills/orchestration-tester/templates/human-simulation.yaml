@@ -1,0 +1,254 @@
+# Human Simulation Configuration
+# Defines how the tester simulates human interactions
+
+# General settings
+settings:
+  enabled: true
+  response_delay_min_seconds: 3
+  response_delay_max_seconds: 30
+  personality: "helpful"           # helpful | strict | busy | random
+
+# Question response patterns
+# The tester matches question titles/descriptions against these patterns
+question_responses:
+  # Authentication related
+  - pattern: "(?i)token.*expir"
+    response: "24 hours"
+    confidence: 0.95
+    delay_seconds: 5
+
+  - pattern: "(?i)password.*hash"
+    response: "Use argon2id with default parameters"
+    confidence: 0.95
+    delay_seconds: 3
+
+  - pattern: "(?i)jwt|json web token"
+    response: "Use standard JWT with HS256"
+    confidence: 0.9
+    delay_seconds: 8
+
+  # Database related
+  - pattern: "(?i)database|db.*type"
+    response: "Use SQLite for simplicity"
+    confidence: 0.9
+    delay_seconds: 10
+
+  - pattern: "(?i)orm|query"
+    response: "Use a query builder approach"
+    confidence: 0.85
+    delay_seconds: 15
+
+  - pattern: "(?i)migration"
+    response: "Use SQL files for migrations"
+    confidence: 0.9
+    delay_seconds: 5
+
+  # API related
+  - pattern: "(?i)http.*framework|express|fastify"
+    response: "Use Express for familiarity"
+    confidence: 0.9
+    delay_seconds: 5
+
+  - pattern: "(?i)rest|endpoint"
+    response: "Follow REST conventions"
+    confidence: 0.95
+    delay_seconds: 3
+
+  - pattern: "(?i)status.*code"
+    response: "Use standard HTTP status codes"
+    confidence: 0.95
+    delay_seconds: 2
+
+  # Testing related
+  - pattern: "(?i)test.*framework"
+    response: "Use Jest"
+    confidence: 0.9
+    delay_seconds: 5
+
+  - pattern: "(?i)coverage"
+    response: "Aim for 80% coverage minimum"
+    confidence: 0.85
+    delay_seconds: 10
+
+  # File format related
+  - pattern: "(?i)config.*format|json|yaml"
+    response: "Use JSON for configuration"
+    confidence: 0.9
+    delay_seconds: 5
+
+  - pattern: "(?i)csv|parse"
+    response: "Handle quoted values and headers"
+    confidence: 0.85
+    delay_seconds: 8
+
+  # Caching related
+  - pattern: "(?i)cache|ttl"
+    response: "1 hour TTL, use LRU eviction"
+    confidence: 0.85
+    delay_seconds: 12
+
+  - pattern: "(?i)invalidat"
+    response: "Use LRU invalidation strategy"
+    confidence: 0.8
+    delay_seconds: 15
+
+  # Error handling
+  - pattern: "(?i)error.*handl|exception"
+    response: "Return meaningful error messages with proper status codes"
+    confidence: 0.9
+    delay_seconds: 7
+
+  - pattern: "(?i)malformed|invalid"
+    response: "Return partial results with warnings"
+    confidence: 0.8
+    delay_seconds: 10
+
+  # Logging related
+  - pattern: "(?i)log.*level"
+    response: "Default to 'info' level"
+    confidence: 0.9
+    delay_seconds: 5
+
+# Default behavior when no pattern matches
+default_question_behavior:
+  action: "choose_default"         # choose_default | choose_first | ask_clarification | delay_long
+  delay_seconds: 20
+  fallback_response: "Please proceed with the default option"
+
+# Assumption handling
+assumption_handling:
+  # How often to approve assumptions (0.0 - 1.0)
+  approval_rate: 0.9
+
+  # Delay before responding to assumptions
+  review_delay_seconds: 10
+
+  # Common rejection reasons (used when rejecting)
+  rejection_reasons:
+    - "Please reconsider this approach"
+    - "Check the requirements document again"
+    - "This might not scale well"
+    - "Consider security implications"
+    - "Let's discuss this further"
+
+  # Patterns that should always be approved
+  auto_approve_patterns:
+    - "(?i)standard.*practice"
+    - "(?i)convention"
+    - "(?i)default"
+    - "(?i)recommended"
+
+  # Patterns that should always be rejected (for testing)
+  auto_reject_patterns:
+    - "(?i)deprecated"
+    - "(?i)insecure"
+    - "(?i)hack|workaround"
+
+# Blocker injection settings
+blocker_injection:
+  enabled: true
+
+  # How often to inject blockers
+  frequency:
+    min_interval_minutes: 5
+    max_interval_minutes: 15
+    max_total: 3                   # Maximum blockers to inject per test
+
+  # Types of blockers to inject
+  injectable_blockers:
+    - type: question
+      probability: 0.5
+      templates:
+        - title: "[Injected] Design decision needed"
+          description: "The tester injected this question to test blocker handling. Should we use approach A or approach B for this component?"
+          options: ["Approach A (simpler)", "Approach B (more flexible)"]
+          default: "Approach A (simpler)"
+          priority: soon
+
+        - title: "[Injected] Naming convention question"
+          description: "The tester injected this question. What naming convention should we use for this module?"
+          options: ["camelCase", "snake_case", "PascalCase"]
+          default: "camelCase"
+          priority: curious
+
+    - type: technical
+      probability: 0.3
+      templates:
+        - title: "[Injected] Simulated dependency issue"
+          description: "The tester injected this blocker to test technical blocker handling. A dependency appears to have a version conflict."
+          attempted:
+            - "Checked package versions"
+            - "Reviewed compatibility matrix"
+          needs: "Decision on which version to use"
+          impact: "Cannot proceed with current task"
+          priority: blocking
+
+    - type: clarification
+      probability: 0.2
+      templates:
+        - title: "[Injected] Requirements clarification"
+          description: "The tester injected this to test clarification flow. The requirements for this feature mention 'user preferences' but don't specify what preferences."
+          priority: soon
+
+# Message simulation (for testing message handling)
+message_simulation:
+  enabled: true
+
+  # Periodic encouragement messages
+  encouragement:
+    enabled: true
+    interval_minutes: 10
+    messages:
+      - "Looking good so far!"
+      - "Keep up the good work"
+      - "Progress looks on track"
+      - "Nice implementation"
+
+  # Guidance messages when agent seems stuck
+  guidance:
+    enabled: true
+    stuck_threshold_minutes: 5    # No progress for this long = stuck
+    messages:
+      - "Try breaking this into smaller steps"
+      - "Consider checking the existing code for patterns"
+      - "Don't forget to update the status file"
+      - "Feel free to ask questions if blocked"
+
+# Metrics to track during simulation
+simulation_metrics:
+  track:
+    - questions_answered
+    - assumptions_approved
+    - assumptions_rejected
+    - blockers_injected
+    - blockers_resolved
+    - messages_sent
+    - average_response_time
+    - simulated_human_time_total
+
+# Personality profiles (affects response style and timing)
+personalities:
+  helpful:
+    response_speed: fast
+    approval_rate: 0.95
+    encouragement: frequent
+    detail_level: high
+
+  strict:
+    response_speed: medium
+    approval_rate: 0.7
+    encouragement: rare
+    detail_level: high
+    rejection_tendency: high
+
+  busy:
+    response_speed: slow
+    approval_rate: 0.85
+    encouragement: rare
+    detail_level: low
+
+  random:
+    response_speed: random
+    approval_rate: random
+    encouragement: random
+    detail_level: random

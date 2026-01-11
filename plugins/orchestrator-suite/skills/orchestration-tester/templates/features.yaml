@@ -1,0 +1,306 @@
+# Feature Templates for Orchestration Testing
+# These are simplistic features that workers can actually implement
+
+simple:
+  - id: hello-world
+    name: "Hello World Function"
+    description: "Create a function that returns 'Hello, World!'"
+    requirements: |
+      Create a function called `helloWorld` that:
+      - Takes no arguments
+      - Returns the string "Hello, World!"
+      - Include a simple test
+    estimated_progress_steps:
+      - { progress: 25, task: "Create function file" }
+      - { progress: 50, task: "Implement function" }
+      - { progress: 75, task: "Write test" }
+      - { progress: 100, task: "Verify test passes" }
+    potential_blockers: []
+
+  - id: add-numbers
+    name: "Add Numbers Function"
+    description: "Create a function that adds two numbers"
+    requirements: |
+      Create a function called `addNumbers` that:
+      - Takes two number arguments (a, b)
+      - Returns the sum of a + b
+      - Handle edge cases (null, undefined)
+      - Include tests
+    estimated_progress_steps:
+      - { progress: 20, task: "Create function file" }
+      - { progress: 40, task: "Implement basic addition" }
+      - { progress: 60, task: "Add edge case handling" }
+      - { progress: 80, task: "Write tests" }
+      - { progress: 100, task: "Verify all tests pass" }
+    potential_blockers:
+      - type: question
+        title: "How to handle NaN?"
+        options: ["Return 0", "Throw error", "Return NaN"]
+        default: "Return 0"
+
+  - id: string-reverse
+    name: "String Reverse Function"
+    description: "Create a function that reverses a string"
+    requirements: |
+      Create a function called `reverseString` that:
+      - Takes a string argument
+      - Returns the reversed string
+      - Handle empty strings
+      - Include tests
+    estimated_progress_steps:
+      - { progress: 25, task: "Create function file" }
+      - { progress: 50, task: "Implement reverse logic" }
+      - { progress: 75, task: "Write tests" }
+      - { progress: 100, task: "Verify tests pass" }
+    potential_blockers: []
+
+  - id: config-file
+    name: "Configuration File"
+    description: "Create a configuration file with key-value pairs"
+    requirements: |
+      Create a configuration system that:
+      - Has a config.json or config.yaml file
+      - Contains app name, version, and environment
+      - Has a function to read the config
+      - Include basic validation
+    estimated_progress_steps:
+      - { progress: 25, task: "Create config file" }
+      - { progress: 50, task: "Add config values" }
+      - { progress: 75, task: "Create reader function" }
+      - { progress: 100, task: "Add validation" }
+    potential_blockers:
+      - type: question
+        title: "Config file format?"
+        options: ["JSON", "YAML", "ENV"]
+        default: "JSON"
+
+  - id: readme-update
+    name: "README Update"
+    description: "Update the README with project information"
+    requirements: |
+      Update README.md to include:
+      - Project name and description
+      - Installation instructions
+      - Usage examples
+      - License information
+    estimated_progress_steps:
+      - { progress: 25, task: "Add project description" }
+      - { progress: 50, task: "Add installation section" }
+      - { progress: 75, task: "Add usage examples" }
+      - { progress: 100, task: "Add license info" }
+    potential_blockers: []
+
+medium:
+  - id: user-model
+    name: "User Data Model"
+    description: "Create a user model with validation"
+    requirements: |
+      Create a User model that:
+      - Has fields: id, name, email, createdAt
+      - Validates email format
+      - Validates name is not empty
+      - Has methods: create, validate, toJSON
+      - Include comprehensive tests
+    estimated_progress_steps:
+      - { progress: 15, task: "Define model structure" }
+      - { progress: 30, task: "Implement fields" }
+      - { progress: 45, task: "Add email validation" }
+      - { progress: 60, task: "Add name validation" }
+      - { progress: 75, task: "Implement methods" }
+      - { progress: 90, task: "Write tests" }
+      - { progress: 100, task: "Verify all tests pass" }
+    potential_blockers:
+      - type: question
+        title: "Email validation strictness?"
+        options: ["Basic (contains @)", "RFC 5322 compliant", "Simple regex"]
+        default: "Simple regex"
+
+  - id: api-endpoint
+    name: "REST API Endpoint"
+    description: "Create a basic REST endpoint"
+    requirements: |
+      Create a /users endpoint that:
+      - GET /users - List all users
+      - GET /users/:id - Get single user
+      - POST /users - Create user
+      - Returns proper status codes
+      - Include request validation
+    estimated_progress_steps:
+      - { progress: 10, task: "Set up route structure" }
+      - { progress: 25, task: "Implement GET /users" }
+      - { progress: 40, task: "Implement GET /users/:id" }
+      - { progress: 55, task: "Implement POST /users" }
+      - { progress: 70, task: "Add validation" }
+      - { progress: 85, task: "Add error handling" }
+      - { progress: 100, task: "Write tests" }
+    potential_blockers:
+      - type: decision
+        title: "HTTP framework choice"
+        options: ["Express", "Fastify", "Native HTTP"]
+        default: "Express"
+
+  - id: file-parser
+    name: "File Parser"
+    description: "Parse a specific file format"
+    requirements: |
+      Create a parser that:
+      - Reads a CSV file
+      - Parses into array of objects
+      - Handles headers
+      - Handles quoted values
+      - Returns errors for malformed input
+    estimated_progress_steps:
+      - { progress: 20, task: "Set up file reading" }
+      - { progress: 40, task: "Parse basic CSV" }
+      - { progress: 60, task: "Handle headers" }
+      - { progress: 80, task: "Handle edge cases" }
+      - { progress: 100, task: "Add error handling and tests" }
+    potential_blockers:
+      - type: question
+        title: "How to handle malformed rows?"
+        options: ["Skip row", "Throw error", "Return partial with warnings"]
+        default: "Return partial with warnings"
+
+  - id: logger-setup
+    name: "Logger Setup"
+    description: "Set up a logging system"
+    requirements: |
+      Create a logger that:
+      - Supports levels: debug, info, warn, error
+      - Writes to console and file
+      - Includes timestamps
+      - Supports structured logging (JSON)
+      - Is configurable via environment
+    estimated_progress_steps:
+      - { progress: 15, task: "Create logger interface" }
+      - { progress: 30, task: "Implement log levels" }
+      - { progress: 45, task: "Add console output" }
+      - { progress: 60, task: "Add file output" }
+      - { progress: 75, task: "Add timestamps" }
+      - { progress: 90, task: "Add configuration" }
+      - { progress: 100, task: "Write tests" }
+    potential_blockers:
+      - type: question
+        title: "Default log level?"
+        options: ["debug", "info", "warn"]
+        default: "info"
+
+  - id: test-suite
+    name: "Test Suite"
+    description: "Create unit tests for existing code"
+    requirements: |
+      Create a test suite that:
+      - Tests all exported functions
+      - Achieves >80% code coverage
+      - Uses a standard test framework
+      - Includes both positive and negative tests
+      - Has clear test descriptions
+    estimated_progress_steps:
+      - { progress: 10, task: "Set up test framework" }
+      - { progress: 25, task: "Identify functions to test" }
+      - { progress: 50, task: "Write positive tests" }
+      - { progress: 75, task: "Write negative tests" }
+      - { progress: 90, task: "Check coverage" }
+      - { progress: 100, task: "Document test suite" }
+    potential_blockers:
+      - type: question
+        title: "Test framework?"
+        options: ["Jest", "Mocha", "Vitest"]
+        default: "Jest"
+
+complex:
+  - id: auth-system
+    name: "Authentication System"
+    description: "Implement user authentication"
+    requirements: |
+      Create an authentication system that:
+      - Supports user registration
+      - Supports user login
+      - Issues JWT tokens
+      - Validates tokens on protected routes
+      - Handles password hashing securely
+      - Includes refresh token mechanism
+    estimated_progress_steps:
+      - { progress: 10, task: "Design auth flow" }
+      - { progress: 20, task: "Set up user storage" }
+      - { progress: 30, task: "Implement registration" }
+      - { progress: 40, task: "Add password hashing" }
+      - { progress: 50, task: "Implement login" }
+      - { progress: 60, task: "Add JWT generation" }
+      - { progress: 70, task: "Add token validation" }
+      - { progress: 80, task: "Add refresh tokens" }
+      - { progress: 90, task: "Write tests" }
+      - { progress: 100, task: "Security review" }
+    potential_blockers:
+      - type: question
+        title: "Token expiry duration?"
+        options: ["1 hour", "24 hours", "7 days"]
+        default: "24 hours"
+      - type: question
+        title: "Password hashing algorithm?"
+        options: ["bcrypt", "argon2id", "scrypt"]
+        default: "argon2id"
+      - type: decision
+        title: "Store refresh tokens where?"
+        options: ["Database", "Redis", "In-memory"]
+        default: "Database"
+
+  - id: database-layer
+    name: "Database Abstraction Layer"
+    description: "Create a database abstraction"
+    requirements: |
+      Create a database layer that:
+      - Abstracts database operations
+      - Supports CRUD operations
+      - Handles connections pooling
+      - Supports transactions
+      - Includes migration system
+      - Works with SQLite for testing
+    estimated_progress_steps:
+      - { progress: 10, task: "Design interface" }
+      - { progress: 20, task: "Set up connection" }
+      - { progress: 30, task: "Implement create" }
+      - { progress: 40, task: "Implement read" }
+      - { progress: 50, task: "Implement update" }
+      - { progress: 60, task: "Implement delete" }
+      - { progress: 70, task: "Add transactions" }
+      - { progress: 80, task: "Add migrations" }
+      - { progress: 90, task: "Write tests" }
+      - { progress: 100, task: "Documentation" }
+    potential_blockers:
+      - type: decision
+        title: "ORM or raw queries?"
+        options: ["Raw SQL", "Query builder", "Full ORM"]
+        default: "Query builder"
+      - type: question
+        title: "Migration file format?"
+        options: ["SQL files", "JavaScript", "TypeScript"]
+        default: "SQL files"
+
+  - id: cache-layer
+    name: "Caching System"
+    description: "Implement a caching layer"
+    requirements: |
+      Create a cache system that:
+      - Supports get/set/delete operations
+      - Has TTL (time-to-live) support
+      - Supports multiple backends (memory, file)
+      - Has cache invalidation strategies
+      - Includes cache statistics
+    estimated_progress_steps:
+      - { progress: 10, task: "Design cache interface" }
+      - { progress: 25, task: "Implement memory backend" }
+      - { progress: 40, task: "Add TTL support" }
+      - { progress: 55, task: "Implement file backend" }
+      - { progress: 70, task: "Add invalidation" }
+      - { progress: 85, task: "Add statistics" }
+      - { progress: 100, task: "Write tests" }
+    potential_blockers:
+      - type: question
+        title: "Default TTL?"
+        options: ["5 minutes", "1 hour", "24 hours"]
+        default: "1 hour"
+      - type: decision
+        title: "Invalidation strategy?"
+        options: ["LRU", "LFU", "FIFO"]
+        default: "LRU"

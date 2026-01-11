@@ -1,0 +1,163 @@
+# Test Configuration Template
+# Copy and modify this for your specific test
+
+test_id: "test-{timestamp}"
+goal: "End-to-end orchestration validation"
+created_at: "{timestamp}"
+created_by: "orchestration-tester"
+
+# Test environment settings
+environment:
+  # Number of dummy projects to create
+  projects: 2
+
+  # Number of features per project
+  features_per_project: 3
+
+  # Feature complexity level: simple | medium | complex
+  complexity: simple
+
+  # Test duration in minutes
+  duration_minutes: 30
+
+  # Base directory for test environment
+  base_directory: "test-environment-{timestamp}"
+
+  # Whether to clean up after test
+  cleanup_on_success: false
+  cleanup_on_failure: false
+
+# Human simulation settings
+human_simulation:
+  enabled: true
+  config_file: "human-simulation.yaml"
+
+  # Override specific settings
+  overrides:
+    response_delay_max_seconds: 15
+    approval_rate: 0.9
+    inject_blockers: true
+
+# Orchestrator settings for the test
+orchestrator:
+  # Cycle interval (shorter for testing)
+  cycle_interval_seconds: 60
+
+  # Maximum concurrent instances
+  max_instances: 4
+
+  # Model to use for workers
+  default_model: "sonnet"
+
+  # Usage thresholds (can be lowered for testing)
+  usage_thresholds:
+    warn: 70
+    pause: 85
+
+# Monitoring settings
+monitoring:
+  # How often to check system status
+  check_interval_seconds: 30
+
+  # Capture detailed logs
+  capture_logs: true
+
+  # Track all metrics
+  track_metrics: true
+
+  # Alert thresholds
+  alerts:
+    no_progress_minutes: 10        # Alert if no progress for this long
+    blocker_queue_size: 5          # Alert if blockers pile up
+    error_count: 3                 # Alert after this many errors
+
+# Success criteria
+success_criteria:
+  required:
+    - name: "All features complete"
+      check: "all_features_100_percent"
+      weight: 1.0
+
+    - name: "No unresolved blockers"
+      check: "no_active_blockers"
+      weight: 1.0
+
+    - name: "Orchestrator stable"
+      check: "orchestrator_no_errors"
+      weight: 1.0
+
+  optional:
+    - name: "Fast completion"
+      check: "completion_under_time"
+      threshold_minutes: 25
+      weight: 0.5
+
+    - name: "Minimal blockers"
+      check: "blocker_count_under"
+      threshold: 5
+      weight: 0.3
+
+    - name: "High efficiency"
+      check: "progress_curve_smooth"
+      weight: 0.2
+
+# Specific scenarios to test
+test_scenarios:
+  - name: "Basic workflow"
+    description: "Test standard project -> feature -> completion flow"
+    enabled: true
+
+  - name: "Blocker handling"
+    description: "Test question and technical blocker resolution"
+    enabled: true
+    inject_blockers: 2
+
+  - name: "Parallel spawning"
+    description: "Test multiple workers running simultaneously"
+    enabled: true
+    min_parallel_instances: 2
+
+  - name: "Progress tracking"
+    description: "Verify progress updates flow correctly"
+    enabled: true
+
+  - name: "Error recovery"
+    description: "Test system recovery from errors"
+    enabled: false                 # Enable for specific error testing
+
+# Report settings
+report:
+  # Output format
+  format: "markdown"
+
+  # Include sections
+  sections:
+    - executive_summary
+    - test_configuration
+    - results_summary
+    - metrics_detail
+    - what_went_well
+    - issues_discovered
+    - skill_improvements
+    - test_coverage
+    - recommendations
+    - logs_artifacts
+
+  # Detail level: brief | standard | verbose
+  detail_level: "standard"
+
+  # Include raw logs in report
+  include_logs: false
+
+  # Output path
+  output_path: "test-report.md"
+
+# Comparison settings (for comparing against previous runs)
+comparison:
+  enabled: false
+  previous_run: null               # Path to previous test report
+  metrics_to_compare:
+    - completion_time
+    - blocker_count
+    - error_count
+    - efficiency_score

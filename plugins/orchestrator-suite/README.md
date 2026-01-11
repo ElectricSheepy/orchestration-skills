@@ -17,7 +17,21 @@ Initialize a new project with the orchestrator's git worktree structure. Creates
 Quick status overview of all projects and instances. Shows health, progress, blockers, and active work across the orchestration system.
 
 ### `/retrospective`
-Run a retrospective on completed features or projects. Analyzes blockers, timing, and patterns to generate actionable insights.
+Run a retrospective on completed features or projects. Analyzes blockers, timing, and patterns to generate actionable insights. Includes instance log analysis for agent behavior insights.
+
+### `/orchestration-tester`
+End-to-end testing framework for the orchestrator system. Creates dummy projects, runs the orchestrator, simulates human interactions (answering questions, resolving blockers), and produces reflection reports with improvement suggestions.
+
+```bash
+# Basic test with defaults
+/orchestration-tester
+
+# Targeted test for blocker handling
+/orchestration-tester --projects 1 --features 5 --goal "blocker handling"
+
+# Stress test with more complexity
+/orchestration-tester --projects 5 --features 4 --complexity medium --duration 60
+```
 
 ## Scripts
 
