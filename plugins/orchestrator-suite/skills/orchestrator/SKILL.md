@@ -26,11 +26,177 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task
 ```
 
 The orchestrator will:
-1. Scan for active projects in `projects/`
-2. Check for pending work in each project's `plan.yaml`
-3. Spawn worker instances for available tasks
-4. Monitor instance progress via YAML status files
-5. Handle blockers and dashboard commands
+1. **Auto-initialize** workspace if not set up
+2. Scan for active projects in `projects/`
+3. Check for pending work in each project's `plan.yaml`
+4. Spawn worker instances for available tasks
+5. Monitor instance progress via YAML status files
+6. Handle blockers and dashboard commands
+
+## Auto-Initialization
+
+On first run, if the workspace structure doesn't exist, the orchestrator will set it up:
+
+### Step 1: Detect Missing Structure
+
+```bash
+# Check if orchestrator workspace exists
+if [ ! -d "orchestrator" ] || [ ! -d "projects" ]; then
+    echo "Orchestrator workspace not found. Initializing..."
+    run_initialization
+fi
+```
+
+### Step 2: Create Directory Structure
+
+```bash
+# Create orchestrator directories
+mkdir -p orchestrator/{instances,schemas}
+mkdir -p projects
+mkdir -p instances
+
+# Initialize orchestrator.yaml
+cat > orchestrator/orchestrator.yaml << EOF
+status: initialized
+started_at: "$(date -Iseconds)"
+last_cycle: null
+next_cycle: null
+cycle_interval_seconds: 900
+max_instances: 6
+active_instances: 0
+
+usage:
+  session_percent: 0
+  weekly_percent: 0
+  warn_threshold: 70
+  pause_threshold: 85
+EOF
+
+# Initialize empty events log
+touch orchestrator/events.jsonl
+
+# Log initialization event
+echo '{"type":"initialized","timestamp":"'$(date -Iseconds)'"}' >> orchestrator/events.jsonl
+```
+
+### Step 3: Ask User About Projects
+
+After creating the structure, prompt the user:
+
+```
+Orchestrator workspace initialized!
+
+How would you like to add projects?
+
+1. Clone from GitHub URL(s)
+   - I'll clone the repo and set up worktree structure
+
+2. Add existing local repository
+   - Point me to a local git repo to import
+
+3. I'll add projects myself later
+   - Projects go in: ./projects/
+   - Use /project-init to set up each project
+
+Which option? (1/2/3)
+```
+
+### Option 1: Clone from GitHub
+
+```bash
+# User provides GitHub URL(s)
+read -p "Enter GitHub URL (or multiple separated by spaces): " urls
+
+for url in $urls; do
+    # Extract repo name from URL
+    repo_name=$(basename "$url" .git)
+    project_name="project-$repo_name"
+
+    echo "Cloning $repo_name..."
+
+    # Clone to temporary location
+    git clone "$url" "/tmp/$repo_name"
+
+    # Set up project with worktree structure
+    mkdir -p "projects/$project_name"
+    cd "projects/$project_name"
+
+    # Initialize as bare repo for worktrees
+    git clone --bare "$url" .git
+    git config core.bare false
+
+    # Create worktrees
+    git worktree add docs docs 2>/dev/null || git worktree add docs -b docs
+    git worktree add code main 2>/dev/null || git worktree add code -b main
+
+    # Initialize orchestration files
+    mkdir -p docs/.project docs/features
+    # ... create status.yaml, plan.yaml, blockers.yaml
+
+    echo "Project $project_name set up!"
+done
+```
+
+### Option 2: Add Local Repository
+
+```bash
+# User provides local path
+read -p "Enter path to local git repository: " repo_path
+
+if [ ! -d "$repo_path/.git" ]; then
+    echo "ERROR: Not a git repository"
+    exit 1
+fi
+
+repo_name=$(basename "$repo_path")
+project_name="project-$repo_name"
+
+echo "Importing $repo_name..."
+
+# Set up project directory
+mkdir -p "projects/$project_name"
+
+# Clone locally
+git clone "$repo_path" "projects/$project_name/.repo"
+
+# Set up worktree structure
+cd "projects/$project_name"
+# ... similar to GitHub clone
+```
+
+### Option 3: Manual Setup Later
+
+```bash
+echo ""
+echo "No problem! Here's how to add projects later:"
+echo ""
+echo "  Option A: Use the project-init skill"
+echo "    /project-init my-project"
+echo ""
+echo "  Option B: Clone and setup manually"
+echo "    cd projects/"
+echo "    git clone <repo-url> project-myproject"
+echo "    cd project-myproject"
+echo "    # Set up docs/ and code/ worktrees"
+echo ""
+echo "Projects directory: $(pwd)/projects/"
+echo ""
+```
+
+### Step 4: Continue to Monitoring
+
+After initialization (with or without projects), proceed to the monitoring loop:
+
+```bash
+echo ""
+echo "Workspace ready! Starting orchestrator monitoring..."
+echo ""
+echo "Dashboard: Run /orchestrator-dashboard in another terminal"
+echo ""
+
+# Begin monitoring cycle
+run_monitoring_loop
+```
 
 ## File Structure
 
